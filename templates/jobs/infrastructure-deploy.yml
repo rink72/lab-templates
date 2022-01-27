@@ -1,0 +1,38 @@
+---
+parameters:
+  environmentName: ''
+  endpointName: ''
+  releaseStrategy: ''
+  variables: {}
+  timeout: 90
+
+jobs:
+- deployment: ${{ parameters.environmentName }}
+  environment: ${{ parameters.environmentName }}
+  workspace:
+    clean: all
+  variables:
+    ${{ insert }}: ${{ parameters.variables }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - download: current
+          displayName: Download artifacts
+        - template: steps/azure-webapi.yml
+          parameters:
+            endpointName: ${{ parameters.endpointName }}
+            ${{ if in(parameters.releaseStrategy, 'Deploy and test', 'Deploy only') }}:
+              keyVaultConfig: ${{ variables.keyVaultConfigPath }}
+              keyVaultArtifact: ${{ variables.keyVaultArtifactPath }}
+              appServiceConfig: ${{ variables.appServiceConfigPath }}
+              appServiceArtifact: ${{ variables.appServiceArtifactPath }}
+              apimConfig: ${{ variables.apimConfigPath }}
+              apimArtifact: ${{ variables.apimArtifactPath }}
+              apimApiLock: ${{ variables.apimApiLock }}
+              alertRuleConfig: ${{ variables.alertRuleConfigPath }}
+            ${{ if in(parameters.releaseStrategy, 'Deploy and test', 'Test only') }}:
+              autoTestsConfig: ${{ variables.autoTestsConfigPath }}
+              autoTestsArtifact: ${{ variables.autoTestsArtifactPath }}
+            pmVersion: ${{ variables.pmVersion }}
+  timeoutInMinutes: ${{ parameters.timeout }}
