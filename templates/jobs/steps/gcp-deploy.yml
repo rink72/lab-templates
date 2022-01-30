@@ -11,9 +11,7 @@ steps:
       (echo ${{ parameters.gcpKeyData }} | base64 -d) > ${{ parameters.keyPath }}
       export GOOGLE_APPLICATION_CREDENTIALS=${{ parameters.keyPath }}
 
-      gcloud auth activate-service-account \
-        --quiet \
-        --key-file ${{ parameters.keyPath }}
+      gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
 
       gcloud login application-default
     displayName: Authenticate
