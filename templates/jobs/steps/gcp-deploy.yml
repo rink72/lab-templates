@@ -1,0 +1,27 @@
+---
+parameters:
+  cloudType: ""
+  service: ""
+  gcpKeyData: ""
+  keyPath: "key.json"
+  timeout: 90
+
+steps:
+  - pwsh: |
+      (echo ${{ parameters.gcpKeyData }} | base64 -d) > ${{ parameters.keyPath }}
+      export GOOGLE_APPLICATION_CREDENTIALS=${{ parameters.keyPath }}
+
+      gcloud auth activate-service-account \
+        --quiet \
+        --key-file ${{ parameters.keyPath }}
+
+      gcloud login application-default
+    displayName: Authenticate
+
+  - pwsh: |
+      gcloud auth list
+    #   $(Pipeline.Workspace)/s/plays/inventories/Build-AnsibleInventory.ps1
+    # displayName: Build Ansible Inventory File
+    # env:
+    #   ENVIRONMENT: ${{ parameters.envCode }}
+    #   INVENTORY_FILE: ${{ parameters.inventoryFile }}
