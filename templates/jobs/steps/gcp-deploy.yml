@@ -24,6 +24,5 @@ steps:
 
       gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
 
-      $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 `
-        -Service ${{ parameters.service }}
+      $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
     displayName: Deploy
