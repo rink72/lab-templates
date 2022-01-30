@@ -7,6 +7,10 @@ parameters:
   timeout: 90
 
 steps:
+  # TODO: Clean this up. 
+  # - Break it in to separate installer scripts
+  # - Set specific versions to use. Right now we're installing the latest
+  # - We could possibly move the packages in to our own custom choco packages
   - pwsh: |
       # OS check. This is to simplify terragrunt install but also
       # because, for some reason, the linux agents were not
@@ -18,7 +22,9 @@ steps:
 
       choco install terragrunt --confirm
 
-      choco install gcloudsdk --confirm
+      (New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
+      & $env:Temp\GoogleCloudSDKInstaller.exe /S /allusers
+    
 
       $ModuleInstalled = Get-Module `
         -Name GoogleCloud `
