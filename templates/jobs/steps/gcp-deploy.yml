@@ -13,7 +13,7 @@ steps:
 
       gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
 
-      gcloud login application-default
+      gcloud auth application-default login
     displayName: Authenticate
 
   - pwsh: |
