@@ -26,7 +26,7 @@ steps:
       (New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
       Start-Process `
         -FilePath $env:Temp\GoogleCloudSDKInstaller.exe `
-        -ArgumentList @("/S" "/allusers") `
+        -ArgumentList @("/S", "/allusers") `
         -NoNewWindow `
         -Wait
 
