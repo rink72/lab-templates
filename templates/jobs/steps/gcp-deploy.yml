@@ -30,11 +30,9 @@ steps:
 
   - pwsh: |
       [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > ${{ parameters.keyPath }}
-      $env:GOOGLE_APPLICATION_CREDENTIALS = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}'))
+      $env:GOOGLE_APPLICATION_CREDENTIALS = '${{ parameters.keyPath }}'
 
       gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
-
-      Remove-Item ${{ parameters.keyPath }} -Force | Out-Null
 
       $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
     displayName: Deploy
