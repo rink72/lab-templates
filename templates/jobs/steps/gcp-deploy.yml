@@ -8,6 +8,16 @@ parameters:
 
 steps:
   - pwsh: |
+      # OS check. This is to simplify terragrunt install but also
+      # because, for some reason, the linux agents were not
+      # picking up our helper files in the repo
+      if (-not $IsWindows)
+      {
+        throw "Terragrunt deployments must use a windows agent"
+      }
+
+      choco install terragrunt --confirm
+
       $ModuleInstalled = Get-Module `
         -Name GoogleCloud `
         -ListAvailable
@@ -19,10 +29,12 @@ steps:
     displayName: Install prerequisites
 
   - pwsh: |
-      (echo '${{ parameters.gcpKeyData }}' | base64 -d) > ${{ parameters.keyPath }}
+      [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > ${{ parameters.keyPath }}
       $env:GOOGLE_APPLICATION_CREDENTIALS = '${{ parameters.keyPath }}'
 
       gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
+
+      Remove-Item ${{ parameters.keyPath }} -Force | Out-Null
 
       $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
     displayName: Deploy
