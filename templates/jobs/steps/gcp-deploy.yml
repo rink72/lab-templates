@@ -8,6 +8,16 @@ parameters:
 
 steps:
   - pwsh: |
+      $ModuleInstalled = Get-Module `
+        -Name GoogleCloud `
+        -ListAvailable
+
+      if (-not $ModuleInstalled)
+      {
+        Install-Module GoogleCloud -Force | Out-Null
+      }
+
+  - pwsh: |
       (echo '${{ parameters.gcpKeyData }}' | base64 -d) > ${{ parameters.keyPath }}
       $env:GOOGLE_APPLICATION_CREDENTIALS = '${{ parameters.keyPath }}'
 
