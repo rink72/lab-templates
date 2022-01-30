@@ -16,5 +16,3 @@ steps:
       $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 `
         -Service ${{ parameters.service }}
     displayName: Deploy
-    env:
-      SERVICE: ${{ parameters.service }}
