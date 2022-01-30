@@ -13,13 +13,8 @@ steps:
 
       gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
 
-      gcloud auth application-default login
-    displayName: Authenticate
-
-  - pwsh: |
-      gcloud auth list
-    #   $(Pipeline.Workspace)/s/plays/inventories/Build-AnsibleInventory.ps1
-    # displayName: Build Ansible Inventory File
-    # env:
-    #   ENVIRONMENT: ${{ parameters.envCode }}
-    #   INVENTORY_FILE: ${{ parameters.inventoryFile }}
+      $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 `
+        -Service ${{ parameters.service }}
+    displayName: Deploy
+    env:
+      SERVICE: ${{ parameters.service }}
