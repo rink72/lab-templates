@@ -4,6 +4,7 @@ parameters:
   service: ""
   environment: Deploy
   gcpKeyData: ""
+  apply: false
   timeout: 90
 
 jobs:
@@ -24,3 +25,4 @@ jobs:
                   parameters:
                     gcpKeyData: ${{ parameters.gcpKeyData }}
                     service: ${{ parameters.service }}
+                    apply: ${{ parameters.apply }}

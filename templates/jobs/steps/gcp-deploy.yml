@@ -3,6 +3,7 @@ parameters:
   cloudType: ""
   service: ""
   gcpKeyData: ""
+  apply: false
   timeout: 90
 
 steps:
@@ -27,11 +28,23 @@ steps:
       }
     displayName: Install prerequisites
 
-  - pwsh: |
-      [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
-      $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
+  - ${{ if eq(parameter.apply, false) }}:
+    - pwsh: |
+        [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
+        $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
 
-      gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
+        gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
 
-      $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
-    displayName: Deploy
+        $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
+      displayName: Terragrunt plan
+      
+  - ${{ else }}:
+    - pwsh: |
+        [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
+        $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
+
+        gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
+
+        $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
+      displayName: Terragrunt apply
+
