@@ -16,7 +16,7 @@ steps:
       {
         Install-Module GoogleCloud -Force | Out-Null
       }
-    displayName: Install pre-requisites
+    displayName: Install prerequisites
 
   - pwsh: |
       (echo '${{ parameters.gcpKeyData }}' | base64 -d) > ${{ parameters.keyPath }}
