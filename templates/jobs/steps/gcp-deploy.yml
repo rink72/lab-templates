@@ -28,10 +28,10 @@ steps:
     displayName: Install prerequisites
 
   - pwsh: |
-      [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > $env:TEMP/key.json
-      $env:GOOGLE_APPLICATION_CREDENTIALS = $env:TEMP/key.json
+      [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
+      $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
 
-      gcloud auth activate-service-account --quiet --key-file $env:TEMP/key.json
+      gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
 
       $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
     displayName: Deploy
