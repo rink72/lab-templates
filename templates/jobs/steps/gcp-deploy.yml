@@ -18,6 +18,8 @@ steps:
 
       choco install terragrunt --confirm
 
+      choco install gcloudsdk --confirm
+
       $ModuleInstalled = Get-Module `
         -Name GoogleCloud `
         -ListAvailable
