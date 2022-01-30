@@ -30,7 +30,7 @@ steps:
 
   - pwsh: |
       [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > ${{ parameters.keyPath }}
-      $env:GOOGLE_APPLICATION_CREDENTIALS = '${{ parameters.keyPath }}'
+      $env:GOOGLE_APPLICATION_CREDENTIALS = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}'))
 
       gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
 
