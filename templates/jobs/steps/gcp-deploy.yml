@@ -8,7 +8,7 @@ parameters:
 
 steps:
   - pwsh: |
-      (Get-Content ${{ parameters.gcpKeyData }} | base64 -d) > ${{ parameters.keyPath }}
+      (Write-Host '${{ parameters.gcpKeyData }}' | base64 -d) > ${{ parameters.keyPath }}
       $env:GOOGLE_APPLICATION_CREDENTIALS = '${{ parameters.keyPath }}'
 
       gcloud auth activate-service-account --quiet --key-file ${{ parameters.keyPath }}
