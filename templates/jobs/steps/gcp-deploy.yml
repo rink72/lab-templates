@@ -22,8 +22,13 @@ steps:
 
       choco install terragrunt --confirm
 
+      Write-Host "Installing Google Cloud SDK"
       (New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
-      & $env:Temp\GoogleCloudSDKInstaller.exe /S /allusers
+      Start-Process `
+        -FilePath $env:Temp\GoogleCloudSDKInstaller.exe `
+        -ArgumentList @("/S" "/allusers") `
+        -NoNewWindow `
+        -Wait
 
       $ModuleInstalled = Get-Module `
         -Name GoogleCloud `
