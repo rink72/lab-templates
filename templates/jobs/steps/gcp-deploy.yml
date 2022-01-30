@@ -28,7 +28,7 @@ steps:
       }
     displayName: Install prerequisites
 
-  - ${{ if eq(parameter.apply, false) }}:
+  - ${{ if eq(parameters.apply, false) }}:
     - pwsh: |
         [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
         $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
@@ -37,7 +37,7 @@ steps:
 
         $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
       displayName: Terragrunt plan
-      
+
   - ${{ else }}:
     - pwsh: |
         [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
