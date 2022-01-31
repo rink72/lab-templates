@@ -62,3 +62,8 @@ steps:
         $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
       displayName: Terragrunt apply
 
+  - pwsh: |
+      Remove-Item -Path "$($env:TEMP)/key.json" -Force
+    displayName: Cleanup
+    condition: always()
+
