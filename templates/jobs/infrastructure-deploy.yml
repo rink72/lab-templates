@@ -1,0 +1,28 @@
+---
+parameters:
+  cloudType: ""
+  service: ""
+  environment: Deploy
+  gcpKeyData: ""
+  apply: false
+  timeout: 90
+
+jobs:
+  - ${{ if eq(parameters.cloudType, 'GCP') }}:
+      - deployment: GCP
+        displayName: Deploy GCP infrastructure
+        environment: ${{ parameters.environment }}
+        timeoutInMinutes: ${{ parameters.timeout }}
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: infrastructure
+                  displayName: Checkout infrastructure repo
+                - template: steps/gcp-deploy.yml
+                  parameters:
+                    gcpKeyData: ${{ parameters.gcpKeyData }}
+                    service: ${{ parameters.service }}
+                    apply: ${{ parameters.apply }}
