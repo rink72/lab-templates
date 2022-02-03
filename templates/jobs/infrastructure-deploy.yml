@@ -3,6 +3,7 @@ parameters:
   cloudType: ""
   service: ""
   environment: Deploy
+  ansiblePlaybook: ""
   gcpKeyData: ""
   apply: false
   timeout: 90
@@ -26,3 +27,23 @@ jobs:
                     gcpKeyData: ${{ parameters.gcpKeyData }}
                     service: ${{ parameters.service }}
                     apply: ${{ parameters.apply }}
+  - ${{ if ne(parameters.ansiblePlaybook, '') }}:
+      - deployment: Ansible
+        displayName: Configure infrastructure
+        environment: ${{ parameters.environment }}
+        timeoutInMinutes: ${{ parameters.timeout }}
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: ansible
+                  displayName: Checkout ansible repo
+                - ${{ if eq(parameters.cloudType, 'GCP') }}:
+                    - template: steps/gcp-ansible.yml
+                      parameters:
+                        ansiblePlaybook: ${{ parameters.ansiblePlaybook }}
+                        gcpKeyData: ${{ parameters.gcpKeyData }}
+                        service: ${{ parameters.service }}
+                        apply: ${{ parameters.apply }}

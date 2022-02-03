@@ -7,12 +7,12 @@ parameters:
   timeout: 90
 
 steps:
-  # TODO: Clean this up. 
+  # TODO: Clean this up.
   # - Break it in to separate installer scripts
   # - Set specific versions to use. Right now we're installing the latest
   # - We could possibly move the packages in to our own custom choco packages
   # - Fix gcloud sdk install on windows-2022
-  # - Make it cross  platform
+  # - Make it cross platform
   - pwsh: |
       # OS check. This is to simplify terragrunt install but also
       # because, for some reason, the linux agents were not
@@ -43,27 +43,26 @@ steps:
     displayName: Install prerequisites
 
   - ${{ if eq(parameters.apply, false) }}:
-    - pwsh: |
-        [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
-        $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
+      - pwsh: |
+          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
+          $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
 
-        gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
+          gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
 
-        $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
-      displayName: Terragrunt plan
+          $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
+        displayName: Terragrunt plan
 
   - ${{ else }}:
-    - pwsh: |
-        [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
-        $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
+      - pwsh: |
+          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
+          $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
 
-        gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
+          gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
 
-        $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
-      displayName: Terragrunt apply
+          $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
+        displayName: Terragrunt apply
 
   - pwsh: |
       Remove-Item -Path "$($env:TEMP)/key.json" -Force
     displayName: Cleanup
     condition: always()
-
