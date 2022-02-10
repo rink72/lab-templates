@@ -13,9 +13,6 @@ jobs:
         displayName: Deploy GCP infrastructure
         environment: ${{ parameters.environment }}
         timeoutInMinutes: ${{ parameters.timeout }}
-        pool:
-          vmImage: ubuntu-20.04
-        container: rink72/lab-ado-container-agent:latest
         workspace:
           clean: all
         strategy:
