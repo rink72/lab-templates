@@ -44,20 +44,24 @@ steps:
 
   - ${{ if eq(parameters.apply, false) }}:
       - pwsh: |
-          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
-          $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
+          $keyPath = Join-Path -Path [System.IO.Path]::GetTempPath() -ChildPath "key.json"
 
-          gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
+          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > $keyPath
+          $env:GOOGLE_APPLICATION_CREDENTIALS = $keyPath
+
+          gcloud auth activate-service-account --quiet --key-file $keyPath
 
           $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
         displayName: Terragrunt plan
 
   - ${{ else }}:
       - pwsh: |
-          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > "$($env:TEMP)/key.json"
-          $env:GOOGLE_APPLICATION_CREDENTIALS = "$($env:TEMP)/key.json"
+          $keyPath = Join-Path -Path [System.IO.Path]::GetTempPath() -ChildPath "key.json"
 
-          gcloud auth activate-service-account --quiet --key-file "$($env:TEMP)/key.json"
+          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > $keyPath
+          $env:GOOGLE_APPLICATION_CREDENTIALS = $keyPath
+
+          gcloud auth activate-service-account --quiet --key-file $keyPath
 
           $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
         displayName: Terragrunt apply
