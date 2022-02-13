@@ -69,6 +69,7 @@ steps:
         displayName: Terragrunt apply
 
   - pwsh: |
-      Remove-Item -Path "$($env:TEMP)/key.json" -Force
+      $tempPath = [System.IO.Path]::GetTempPath()
+      Remove-Item -Path $tempPath -Force
     displayName: Cleanup
     condition: always()
