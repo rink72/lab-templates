@@ -35,6 +35,7 @@ steps:
 
   - pwsh: |
       $tempPath = [System.IO.Path]::GetTempPath()
-      Remove-Item -Path $tempPath -Force
+      $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
+      Remove-Item -Path $keyPath -Force
     displayName: Cleanup
     condition: always()
