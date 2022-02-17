@@ -11,25 +11,27 @@ parameters:
   timeout: 90
 
 jobs:
-  # - ${{ if eq(parameters.deploy, true ) }}:
-  #     - ${{ if eq(parameters.cloudType, 'GCP') }}:
-  #         - deployment: GCP
-  #           displayName: Deploy GCP infrastructure
-  #           environment: ${{ parameters.environment }}
-  #           timeoutInMinutes: ${{ parameters.timeout }}
-  #           workspace:
-  #             clean: all
-  #           strategy:
-  #             runOnce:
-  #               deploy:
-  #                 steps:
-  #                   - checkout: infrastructure
-  #                     displayName: Checkout infrastructure repo
-  #                   - template: steps/gcp-deploy.yml
-  #                     parameters:
-  #                       gcpKeyData: ${{ parameters.gcpKeyData }}
-  #                       service: ${{ parameters.service }}
-  #                       apply: ${{ parameters.apply }}
+  # - ${{ if eq(parameters.cloudType, 'GCP') }}:
+  #     - deployment: GCP
+  #       displayName: Deploy GCP infrastructure
+  #       environment: ${{ parameters.environment }}
+  #       timeoutInMinutes: ${{ parameters.timeout }}
+  #       pool:
+  #         vmImage: ubuntu-20.04
+  #       container: rink72/lab-ado-container-agent:latest
+  #       workspace:
+  #         clean: all
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - checkout: infrastructure
+  #                 displayName: Checkout infrastructure repo
+  #               - template: steps/gcp-deploy.yml
+  #                 parameters:
+  #                   gcpKeyData: ${{ parameters.gcpKeyData }}
+  #                   service: ${{ parameters.service }}
+  #                   apply: ${{ parameters.apply }}
 
   - ${{ if eq(parameters.configure, true ) }}:
       - ${{ if ne(parameters.ansiblePlaybook, '') }}:
