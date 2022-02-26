@@ -26,7 +26,7 @@ steps:
         -Force `
         -ErrorAction Stop
 
-      gci $environmentPath
+      gci $environmentPath -Recurse
     displayName: Merge terragrunt configuration
 
   - ${{ if eq(parameters.apply, false) }}:
@@ -41,7 +41,7 @@ steps:
 
           gci $(System.ArtifactsDirectory) -Recurse
 
-          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
+          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
         displayName: Terragrunt plan
 
   - ${{ else }}:
@@ -54,7 +54,7 @@ steps:
 
           gcloud auth activate-service-account --quiet --key-file $keyPath
 
-          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
+          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
         displayName: Terragrunt apply
 
   - pwsh: |

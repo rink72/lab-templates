@@ -3,6 +3,7 @@ parameters:
   cloudType: ""
   service: ""
   environment: Deploy
+  configPath: ""
   terragruntArtifactName: terragrunt
   infrastructureArtifactName: infrastructure
   gcpKeyData: ""
@@ -28,6 +29,7 @@ jobs:
                   displayName: Download artifacts
                 - template: steps/gcp-deploy.yml
                   parameters:
+                    configPath: ${{ parameters.configPath }}
                     terragruntArtifactName: ${{ parameters.terragruntArtifactName }}
                     infrastructureArtifactName: ${{ parameters.infrastructureArtifactName }}
                     gcpKeyData: ${{ parameters.gcpKeyData }}
