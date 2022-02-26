@@ -1,12 +1,32 @@
 ---
 parameters:
-  cloudType: ""
+  configPath: ""
   service: ""
   gcpKeyData: ""
+  project: "labrink72"
+  terragruntArtifactName: terragrunt
+  infrastructureArtifactName: infrastructure
   apply: false
   timeout: 90
 
 steps:
+  - pwsh: |
+      $environmentPath = "$(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/terragrunt/gcp/${{ parameters.project }}/${{ parameters.service }}"
+      $configPath = "$(System.ArtifactsDirectory)/${{ parameters.configPath }}"
+
+      New-Item `
+        -Path $environmentPath `
+        -ItemType Directory `
+        -Force `
+        -ErrorAction Stop | Out-Null
+
+      Copy-Item `
+        -Path $configPath `
+        -Destination $environmentPath `
+        -Force `
+        -ErrorAction Stop
+    displayName: Merge terragrunt configuration
+
   - ${{ if eq(parameters.apply, false) }}:
       - pwsh: |
           $tempPath = [System.IO.Path]::GetTempPath()
@@ -17,7 +37,7 @@ steps:
 
           gcloud auth activate-service-account --quiet --key-file $keyPath
 
-          $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
+          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
         displayName: Terragrunt plan
 
   - ${{ else }}:
@@ -30,7 +50,7 @@ steps:
 
           gcloud auth activate-service-account --quiet --key-file $keyPath
 
-          $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
+          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
         displayName: Terragrunt apply
 
   - pwsh: |

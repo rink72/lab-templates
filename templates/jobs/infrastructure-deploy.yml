@@ -3,6 +3,8 @@ parameters:
   cloudType: ""
   service: ""
   environment: Deploy
+  terragruntArtifactName: terragrunt
+  infrastructureArtifactName: infrastructure
   gcpKeyData: ""
   apply: false
   timeout: 90
@@ -22,10 +24,12 @@ jobs:
           runOnce:
             deploy:
               steps:
-                - checkout: infrastructure
-                  displayName: Checkout infrastructure repo
+                - download: current
+                  displayName: Download artifacts
                 - template: steps/gcp-deploy.yml
                   parameters:
+                    terragruntArtifactName: ${{ parameters.terragruntArtifactName }}
+                    infrastructureArtifactName: ${{ parameters.infrastructureArtifactName }}
                     gcpKeyData: ${{ parameters.gcpKeyData }}
                     service: ${{ parameters.service }}
                     apply: ${{ parameters.apply }}
