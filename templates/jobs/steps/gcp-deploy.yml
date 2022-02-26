@@ -25,6 +25,8 @@ steps:
         -Destination $environmentPath `
         -Force `
         -ErrorAction Stop
+
+      gci $environmentPath
     displayName: Merge terragrunt configuration
 
   - ${{ if eq(parameters.apply, false) }}:
@@ -36,6 +38,8 @@ steps:
           $env:GOOGLE_APPLICATION_CREDENTIALS = $keyPath
 
           gcloud auth activate-service-account --quiet --key-file $keyPath
+
+          gci $(System.ArtifactsDirectory) -Recurse
 
           $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
         displayName: Terragrunt plan
