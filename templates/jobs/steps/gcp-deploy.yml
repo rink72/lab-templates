@@ -14,7 +14,7 @@ steps:
       $environmentPath = "$(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/terragrunt/gcp/${{ parameters.project }}/${{ parameters.service }}"
       $configPath = "$(System.ArtifactsDirectory)/${{ parameters.configPath }}"
 
-      gci -recurse
+      gci $(System.ArtifactsDirectory)/ -Recurse
 
       Write-Host "Artifact"
 
