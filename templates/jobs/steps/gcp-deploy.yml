@@ -11,8 +11,8 @@ parameters:
 
 steps:
   - pwsh: |
-      $environmentPath = "$(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/terragrunt/gcp/${{ parameters.project }}/${{ parameters.service }}"
-      $configPath = "$(System.ArtifactsDirectory)/${{ parameters.configPath }}"
+      $environmentPath = "$(Pipeline.Workspace)/${{ parameters.terragruntArtifactName }}/terragrunt/gcp/${{ parameters.project }}/${{ parameters.service }}"
+      $configPath = "$(Pipeline.Workspace)/${{ parameters.configPath }}"
 
       gci $(Pipeline.Workspace)/ -Recurse
 
@@ -47,7 +47,7 @@ steps:
 
           gci $(System.ArtifactsDirectory) -Recurse
 
-          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
+          $(Pipeline.Workspace)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
         displayName: Terragrunt plan
 
   - ${{ else }}:
@@ -60,7 +60,7 @@ steps:
 
           gcloud auth activate-service-account --quiet --key-file $keyPath
 
-          $(System.ArtifactsDirectory)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
+          $(Pipeline.Workspace)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
         displayName: Terragrunt apply
 
   - pwsh: |
