@@ -6,6 +6,7 @@ parameters:
   configPath: ""
   terragruntArtifactName: terragrunt
   infrastructureArtifactName: infrastructure
+  ansibleArtifactName: ansible
   ansiblePlaybook: ""
   gcpKeyData: ""
   deploy: false
@@ -61,3 +62,4 @@ jobs:
                         gcpKeyData: ${{ parameters.gcpKeyData }}
                         service: ${{ parameters.service }}
                         apply: ${{ parameters.apply }}
+                        ansibleArtifactName: ${{ parameters.ansibleArtifactName }}
