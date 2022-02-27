@@ -8,7 +8,6 @@ parameters:
   infrastructureArtifactName: infrastructure
   ansiblePlaybook: ""
   gcpKeyData: ""
-  apply: false
   deploy: false
   configure: false
   timeout: 90
@@ -37,7 +36,7 @@ jobs:
                     infrastructureArtifactName: ${{ parameters.infrastructureArtifactName }}
                     gcpKeyData: ${{ parameters.gcpKeyData }}
                     service: ${{ parameters.service }}
-                    apply: ${{ parameters.apply }}
+                    deploy: ${{ parameters.deploy }}
 
   - ${{ if eq(parameters.configure, true ) }}:
       - ${{ if ne(parameters.ansiblePlaybook, '') }}:

@@ -6,7 +6,7 @@ parameters:
   project: "labrink72"
   terragruntArtifactName: terragrunt
   infrastructureArtifactName: infrastructure
-  apply: false
+  deploy: false
   timeout: 90
 
 steps:
@@ -27,7 +27,7 @@ steps:
         -ErrorAction Stop
     displayName: Merge terragrunt configuration
 
-  - ${{ if eq(parameters.apply, false) }}:
+  - ${{ if eq(parameters.deploy, false) }}:
       - pwsh: |
           $tempPath = [System.IO.Path]::GetTempPath()
           $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
