@@ -12,11 +12,16 @@ steps:
   - pwsh: |
       $tempPath = [System.IO.Path]::GetTempPath()
       $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
+      $sshKeyPath = Join-Path -Path $tempPath -ChildPath "ansible-ssh"
+      $sshPubKeyPath = Join-Path -Path $tempPath -ChildPath "ansible-ssh.pub"
 
       [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > $keyPath
       $env:GOOGLE_APPLICATION_CREDENTIALS = $keyPath
 
+      ssh-keygen -f $sshKeyPath -N ""
+
       gcloud auth activate-service-account --quiet --key-file $keyPath
+      gcloud compute os-login ssh-keys add --key-file=$sshPubKeyPath
 
     displayName: Create temporary SSH key
 
@@ -24,12 +29,15 @@ steps:
       $tempPath = [System.IO.Path]::GetTempPath()
       $env:ANSIBLE_CONFIG = "$(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }}/ansible.cfg"
       $env:GCE_CREDENTIALS_FILE_PATH = Join-Path -Path $tempPath -ChildPath "key.json"
+      $sshKeyPath = Join-Path -Path $tempPath -ChildPath "ansible-ssh"
 
       Set-Location `
         -Path $(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }} `
         -ErrorAction Stop | Out-Null
 
       ansible-inventory -i inventories/inventory.gcp.yml  --graph
+
+      ansible -m ping -i inventories/inventory.gcp.yml --private-key $sshKeyPath labbox
 
     displayName: Run ansible
 
