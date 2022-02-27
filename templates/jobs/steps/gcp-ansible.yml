@@ -34,6 +34,11 @@ steps:
     displayName: Run ansible
 
   - pwsh: |
-      Remove-Item -Path "$($env:TEMP)/key.json" -Force
+      $tempPath = [System.IO.Path]::GetTempPath()
+      $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
+      Remove-Item `
+        -Path $keyPath `
+        -Force `
+        -ErrorAction SilentlyContinue
     displayName: Cleanup
     condition: always()
