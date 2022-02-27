@@ -47,6 +47,8 @@ jobs:
         displayName: Configure infrastructure
         environment: ${{ parameters.environment }}
         timeoutInMinutes: ${{ parameters.timeout }}
+        dependsOn:
+          - GCP
         workspace:
           clean: all
         strategy:

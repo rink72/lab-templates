@@ -21,7 +21,7 @@ steps:
     displayName: Create temporary SSH key
 
   - pwsh: |
-      $env:ANSIBLE_CONFIG = $(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }}/ansible.cfg
+      $env:ANSIBLE_CONFIG = "$(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }}/ansible.cfg"
       $env:GCE_CREDENTIALS_FILE_PATH = Join-Path -Path $tempPath -ChildPath "key.json"
 
       Set-Location
