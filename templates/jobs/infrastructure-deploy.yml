@@ -6,8 +6,11 @@ parameters:
   configPath: ""
   terragruntArtifactName: terragrunt
   infrastructureArtifactName: infrastructure
+  ansiblePlaybook: ""
   gcpKeyData: ""
   apply: false
+  deploy: false
+  configure: false
   timeout: 90
 
 jobs:
@@ -35,3 +38,28 @@ jobs:
                     gcpKeyData: ${{ parameters.gcpKeyData }}
                     service: ${{ parameters.service }}
                     apply: ${{ parameters.apply }}
+
+  - ${{ if eq(parameters.configure, true ) }}:
+      - ${{ if ne(parameters.ansiblePlaybook, '') }}:
+          - deployment: Ansible
+            pool:
+              vmImage: ubuntu-latest
+            container: rink72/lab-ado-container-agent:latest
+            displayName: Configure infrastructure
+            environment: ${{ parameters.environment }}
+            timeoutInMinutes: ${{ parameters.timeout }}
+            workspace:
+              clean: all
+            strategy:
+              runOnce:
+                deploy:
+                  steps:
+                    - checkout: ansible
+                      displayName: Checkout ansible repo
+                    - ${{ if eq(parameters.cloudType, 'GCP') }}:
+                        - template: steps/gcp-ansible.yml
+                          parameters:
+                            ansiblePlaybook: ${{ parameters.ansiblePlaybook }}
+                            gcpKeyData: ${{ parameters.gcpKeyData }}
+                            service: ${{ parameters.service }}
+                            apply: ${{ parameters.apply }}
