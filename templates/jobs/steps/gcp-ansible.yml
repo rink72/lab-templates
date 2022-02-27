@@ -1,5 +1,6 @@
 ---
 parameters:
+  ansibleArtifactName: ansible
   ansiblePlaybook: ""
   service: ""
   sshKeyExpiry: "60m"
@@ -8,18 +9,27 @@ parameters:
   timeout: 90
 
 steps:
-  - bash: |
-      sudo apt install apt-transport-https ca-certificates gnupg
-      echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-      curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-      sudo apt update && sudo apt install google-cloud-sdk
-    displayName: Install prerequisites
+  - pwsh: |
+      $tempPath = [System.IO.Path]::GetTempPath()
+      $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
 
-  - bash: |
-      echo "Creating ssh key with expiry <${{ parameters.sshKeyExpiry }}>"
+      [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > $keyPath
+      $env:GOOGLE_APPLICATION_CREDENTIALS = $keyPath
+
+      gcloud auth activate-service-account --quiet --key-file $keyPath
+
     displayName: Create temporary SSH key
 
-  - pwsh: Write-Host "Run ansible"
+  - pwsh: |
+      $env:ANSIBLE_CONFIG = $(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }}/ansible.cfg
+      $env:GCE_CREDENTIALS_FILE_PATH = Join-Path -Path $tempPath -ChildPath "key.json"
+
+      Set-Location
+        -Path $(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }} `
+        -ErrorAction Stop | Out-Null
+
+      ansible-inventory -i inventories/inventory.gcp.yml  --graph
+
     displayName: Run ansible
 
   - pwsh: |
