@@ -15,7 +15,7 @@ parameters:
 
 jobs:
   - ${{ if eq(parameters.cloudType, 'GCP') }}:
-      - deployment: GCP
+      - deployment: GCP_Deploy
         displayName: Deploy GCP infrastructure
         environment: ${{ parameters.environment }}
         timeoutInMinutes: ${{ parameters.timeout }}
@@ -40,15 +40,15 @@ jobs:
                     deploy: ${{ parameters.deploy }}
 
   - ${{ if eq(parameters.configure, true ) }}:
-      - deployment: Ansible
+      - deployment: GCP_Ansible
         pool:
           vmImage: ubuntu-latest
         container: rink72/lab-ado-container-agent:latest
         displayName: Configure infrastructure
         environment: ${{ parameters.environment }}
         timeoutInMinutes: ${{ parameters.timeout }}
-        # dependsOn:
-        #   - GCP
+        dependsOn:
+          - GCP_Deploy
         workspace:
           clean: all
         strategy:
