@@ -35,8 +35,6 @@ steps:
         -Path $(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }} `
         -ErrorAction Stop | Out-Null
 
-      ansible-inventory -i inventories/inventory.gcp.yml  --graph
-
       ansible -m ping -i inventories/inventory.gcp.yml --private-key $sshKeyPath labbox
 
     displayName: Run ansible
