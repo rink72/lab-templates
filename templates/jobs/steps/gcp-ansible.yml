@@ -21,7 +21,7 @@ steps:
       ssh-keygen -f $sshKeyPath -N '""'
 
       gcloud auth activate-service-account --quiet --key-file $keyPath
-      gcloud compute os-login ssh-keys add --key-file=$sshPubKeyPath
+      gcloud compute os-login ssh-keys add --key-file=$sshPubKeyPath --quiet
 
     displayName: Create temporary SSH key
 
