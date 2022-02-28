@@ -18,10 +18,10 @@ steps:
       [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > $keyPath
       $env:GOOGLE_APPLICATION_CREDENTIALS = $keyPath
 
-      ssh-keygen -f $sshKeyPath -N '""'
+      ssh-keygen -q -f $sshKeyPath -N '""'
 
       gcloud auth activate-service-account --quiet --key-file $keyPath
-      gcloud compute os-login ssh-keys add --key-file=$sshPubKeyPath --quiet
+      gcloud compute os-login ssh-keys add --key-file=$sshPubKeyPath --no-user-output-enabled
 
     displayName: Create temporary SSH key
 
