@@ -1,13 +1,33 @@
 ---
 parameters:
-  cloudType: ""
+  configPath: ""
   service: ""
   gcpKeyData: ""
-  apply: false
+  project: "labrink72"
+  terragruntArtifactName: terragrunt
+  infrastructureArtifactName: infrastructure
+  deploy: false
   timeout: 90
 
 steps:
-  - ${{ if eq(parameters.apply, false) }}:
+  - pwsh: |
+      $environmentPath = "$(Pipeline.Workspace)/${{ parameters.terragruntArtifactName }}/terragrunt/gcp/${{ parameters.project }}/${{ parameters.service }}"
+      $configPath = "$(Pipeline.Workspace)/${{ parameters.configPath }}"
+
+      New-Item `
+        -Path $environmentPath `
+        -ItemType Directory `
+        -Force `
+        -ErrorAction Stop | Out-Null
+
+      Copy-Item `
+        -Path $configPath `
+        -Destination $environmentPath `
+        -Force `
+        -ErrorAction Stop
+    displayName: Merge terragrunt configuration
+
+  - ${{ if eq(parameters.deploy, false) }}:
       - pwsh: |
           $tempPath = [System.IO.Path]::GetTempPath()
           $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
@@ -17,7 +37,7 @@ steps:
 
           gcloud auth activate-service-account --quiet --key-file $keyPath
 
-          $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
+          $(Pipeline.Workspace)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }}
         displayName: Terragrunt plan
 
   - ${{ else }}:
@@ -30,12 +50,15 @@ steps:
 
           gcloud auth activate-service-account --quiet --key-file $keyPath
 
-          $(Pipeline.Workspace)/s/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
+          $(Pipeline.Workspace)/${{ parameters.terragruntArtifactName }}/terragrunt/scripts/Deploy-GCPTerragruntConfig.ps1 -Service ${{ parameters.service }} -Apply
         displayName: Terragrunt apply
 
   - pwsh: |
       $tempPath = [System.IO.Path]::GetTempPath()
       $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
-      Remove-Item -Path $keyPath -Force
+      Remove-Item `
+        -Path $keyPath `
+        -Force `
+        -ErrorAction SilentlyContinue
     displayName: Cleanup
     condition: always()

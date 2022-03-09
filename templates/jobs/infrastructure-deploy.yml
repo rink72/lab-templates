@@ -3,13 +3,19 @@ parameters:
   cloudType: ""
   service: ""
   environment: Deploy
+  configPath: ""
+  terragruntArtifactName: terragrunt
+  infrastructureArtifactName: infrastructure
+  ansibleArtifactName: ansible
+  ansiblePlaybook: ""
   gcpKeyData: ""
-  apply: false
+  deploy: false
+  configure: false
   timeout: 90
 
 jobs:
-  - ${{ if eq(parameters.cloudType, 'GCP') }}:
-      - deployment: GCP
+  - ${{ if eq(parameters.deploy, true) }}:
+      - deployment: GCP_Deploy
         displayName: Deploy GCP infrastructure
         environment: ${{ parameters.environment }}
         timeoutInMinutes: ${{ parameters.timeout }}
@@ -22,10 +28,41 @@ jobs:
           runOnce:
             deploy:
               steps:
-                - checkout: infrastructure
-                  displayName: Checkout infrastructure repo
+                - download: current
+                  displayName: Download artifacts
                 - template: steps/gcp-deploy.yml
                   parameters:
+                    configPath: ${{ parameters.configPath }}
+                    terragruntArtifactName: ${{ parameters.terragruntArtifactName }}
+                    infrastructureArtifactName: ${{ parameters.infrastructureArtifactName }}
                     gcpKeyData: ${{ parameters.gcpKeyData }}
                     service: ${{ parameters.service }}
-                    apply: ${{ parameters.apply }}
+                    deploy: ${{ parameters.deploy }}
+
+  - ${{ if eq(parameters.configure, true ) }}:
+      - deployment: GCP_Ansible
+        pool:
+          vmImage: ubuntu-latest
+        container: rink72/lab-ado-container-agent:latest
+        displayName: Configure infrastructure
+        environment: ${{ parameters.environment }}
+        timeoutInMinutes: ${{ parameters.timeout }}
+        ${{ if eq(parameters.deploy, true) }}:
+          dependsOn:
+            - GCP_Deploy
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: ansible
+                  displayName: Checkout ansible repo
+                - ${{ if eq(parameters.cloudType, 'GCP') }}:
+                    - template: steps/gcp-ansible.yml
+                      parameters:
+                        ansiblePlaybook: ${{ parameters.ansiblePlaybook }}
+                        gcpKeyData: ${{ parameters.gcpKeyData }}
+                        service: ${{ parameters.service }}
+                        apply: ${{ parameters.apply }}
+                        ansibleArtifactName: ${{ parameters.ansibleArtifactName }}

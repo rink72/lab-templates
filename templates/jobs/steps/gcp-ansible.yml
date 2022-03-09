@@ -1,0 +1,53 @@
+---
+parameters:
+  infrastructureArtifactName: infrastructure
+  ansibleArtifactName: ansible
+  ansiblePlaybook: ""
+  service: ""
+  sshKeyExpiry: "60m"
+  gcpKeyData: ""
+  apply: false
+  timeout: 90
+
+steps:
+  - pwsh: |
+      $tempPath = [System.IO.Path]::GetTempPath()
+      $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
+      $sshKeyPath = Join-Path -Path $tempPath -ChildPath "ansible-ssh"
+      $sshPubKeyPath = Join-Path -Path $tempPath -ChildPath "ansible-ssh.pub"
+
+      [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ parameters.gcpKeyData }}')) > $keyPath
+      $env:GOOGLE_APPLICATION_CREDENTIALS = $keyPath
+
+      ssh-keygen -q -f $sshKeyPath -N '""'
+
+      gcloud auth activate-service-account --quiet --key-file $keyPath
+      gcloud compute os-login ssh-keys add --key-file=$sshPubKeyPath --no-user-output-enabled
+
+    displayName: Create temporary SSH key
+
+  - pwsh: |
+      $tempPath = [System.IO.Path]::GetTempPath()
+      $env:ANSIBLE_CONFIG = "$(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }}/ansible.cfg"
+      $env:GCE_CREDENTIALS_FILE_PATH = Join-Path -Path $tempPath -ChildPath "key.json"
+      $sshKeyPath = Join-Path -Path $tempPath -ChildPath "ansible-ssh"
+
+      Set-Location `
+        -Path $(Pipeline.Workspace)/${{ parameters.ansibleArtifactName }} `
+        -ErrorAction Stop | Out-Null
+
+      $env:ANSIBLE_FORCE_COLOR = "True"
+
+      ansible-playbook $(Pipeline.Workspace)/${{ parameters.terragruntArtifactName }}/${{ parameters.ansiblePlaybook }} -i inventories/inventory.gcp.yml --private-key $sshKeyPath
+
+    displayName: Run ansible
+
+  - pwsh: |
+      $tempPath = [System.IO.Path]::GetTempPath()
+      $keyPath = Join-Path -Path $tempPath -ChildPath "key.json"
+      Remove-Item `
+        -Path $keyPath `
+        -Force `
+        -ErrorAction SilentlyContinue
+    displayName: Cleanup
+    condition: always()
