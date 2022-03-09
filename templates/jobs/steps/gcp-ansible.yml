@@ -37,7 +37,8 @@ steps:
 
       $env:ANSIBLE_FORCE_COLOR = "True"
 
-      ansible -m ping -i inventories/inventory.gcp.yml --private-key $sshKeyPath labbox
+      #ansible -m ping -i inventories/inventory.gcp.yml --private-key $sshKeyPath labbox
+      ansible-playbook ${{ parameters.ansiblePlaybook }} -i inventories/inventory.gcp.yml --private-key $sshKeyPath labbox
 
     displayName: Run ansible
 
