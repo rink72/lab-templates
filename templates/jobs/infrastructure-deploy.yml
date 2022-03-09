@@ -14,7 +14,7 @@ parameters:
   timeout: 90
 
 jobs:
-  - ${{ if eq(parameters.cloudType, 'GCP') }}:
+  - ${{ if eq(parameters.deploy, true) }}:
       - deployment: GCP_Deploy
         displayName: Deploy GCP infrastructure
         environment: ${{ parameters.environment }}
@@ -47,8 +47,9 @@ jobs:
         displayName: Configure infrastructure
         environment: ${{ parameters.environment }}
         timeoutInMinutes: ${{ parameters.timeout }}
-        dependsOn:
-          - GCP_Deploy
+        ${{ if eq(parameters.deploy, true) }}:
+          dependsOn:
+            - GCP_Deploy
         workspace:
           clean: all
         strategy:
